@@ -1,4 +1,4 @@
-{{- defineDatasource "extra_include" .Env.README_INCLUDES | regexp.Replace ".*" "" -}}
+{{- defineDatasource "extra_include" "" | regexp.Replace ".*" "" -}}
 {{- $deprecated := has (ds "config") "deprecated" }}
 # {{- if $deprecated }} **DEPRECATED**{{- end }} {{(ds "config").name}}
 {{- if has (ds "config") "badges" }}
@@ -10,6 +10,9 @@
 {{- end }}
 {{- end }}
 {{- end }}
+
+[![WeSupportUkraine](https://raw.githubusercontent.com/Infrastrukturait/WeSupportUkraine/main/banner.svg)](https://github.com/Infrastrukturait/WeSupportUkraine)
+
 {{- if has (ds "config") "logo" }}
 ![{{(ds "config").name}}]({{ (ds "config").logo }})
 {{- end }}
