@@ -5,7 +5,7 @@
 ## About
 
 This is a simple templating method that allows us to standardize way to create README.md in our organization.
-Idea was *taken* from cloudposse and them [build-harness][0].
+Idea was *taken* from cloudposse and them [build-harness][1].
 ## License
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
