@@ -10,5 +10,5 @@
 | includes      | []      | List of path to extra RAW markdown files that be included                                                           |
 | authors       | [{}]    | List of authors. Contributes at this moment you can add by includes block from external markdown file.              |
 | context       | []      | block of text with multiple lines                                                                                  |
+| references    | []      | List of references links list, generated with integer indexes from 0..n to easy manage links on context. Always predefinied link is a `[repo_url]`.          |
 | deprecated    | ""      | this flag accept all content. This is no metter, if script find this flag, will add infromation about deprecation.    |
-|               |         |                                                                                                                    |

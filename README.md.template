@@ -190,3 +190,12 @@ See [LICENSE.md](LICENSE.md) for full details.
 {{- end }}
 {{- end }}
 {{- end }}
+
+<!-- references -->
+
+[repo_link]:[{{- (ds "config").repo_url }}]
+{{- if has (ds "config") "references" }}
+{{- range $index, $reference_link := (ds "config").references  }}
+{{ printf "[%d]:[%s]" $index $reference_link }}
+{{- end }}
+{{- end }}
