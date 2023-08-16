@@ -55,40 +55,14 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
+
+Source: <https://opensource.org/license/apache-2-0/>
 ```
 {{- if (file.Exists "LICENSE.md") }}
 See [LICENSE.md(LICENSE.md) for full details.
 {{- end }}
-{{- end }}
-{{- if eq (ds "config").license "CC-BY-NC-SA-4.0" }}
-## License
-
-[![License](https://img.shields.io/badge/License-CC%20BY%20NC%20SA%204.0-blue.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img title="Creative Commons Attribution-NonCommercial-ShareAlike 4.0 
-International License" src="https://docs.cloudposse.com/images/cc-by-nc-sa.png" width="150" /></a>
-
-This material may only be distributed subject to the terms and conditions set forth in the Creative Commons 
-Attribution-NonCommercial-ShareAlike 4.0 International License or later with the restrictions noted below (the latest version of the 
-license is presently available at <https://creativecommons.org/licenses/by-nc-sa/4.0/>).
-
-**Attribution** You must attribute the work in the manner specified by the author or licensor.
-
-**Noncommercial** The licensor permits others to copy, distribute and transmit the work. In return, licensees may not use the work for 
-commercial purposes — unless they get the licensor's permission.
-
-**Share Alike** The licensor permits others to distribute derivative works only under the same license or one compatible with the one 
-that governs the licensor's work.
-
-## Distribution
-
-Distribution of substantively modified versions of this document is prohibited without the explicit permission of the copyright 
-holder.
-
-Distribution of the work or derivative of the work in any standard (paper) book form for commercial purposes is prohibited unless 
-prior permission is obtained from the copyright holder.
-{{- if (file.Exists "LICENSE.md") }}
-See [LICENSE.md](LICENSE.md) for full details.
+{{- if (file.Exists "LICENSE") }}
+See [LICENSE](LICENSE) for full details.
 {{- end }}
 {{- end }}
 
@@ -123,6 +97,9 @@ Source: <https://opensource.org/licenses/MIT>
 {{- if (file.Exists "LICENSE.md") }}
 See [LICENSE.md](LICENSE.md) for full details.
 {{- end }}
+{{- if (file.Exists "LICENSE") }}
+See [LICENSE](LICENSE) for full details.
+{{- end }}
 {{- end }}
 
 {{- if eq (ds "config").license "ISC" }}
@@ -145,6 +122,9 @@ Source: <https://opensource.org/licenses/ISC>
 ```
 {{- if (file.Exists "LICENSE.md") }}
 See [LICENSE.md](LICENSE.md) for full details.
+{{- end }}
+{{- if (file.Exists "LICENSE") }}
+See [LICENSE](LICENSE) for full details.
 {{- end }}
 {{- end }}
 
@@ -169,10 +149,15 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Source: <https://opensource.org/license/gpl-3-0/>
 ```
 
 {{- if (file.Exists "LICENSE.md") }}
 See [LICENSE.md](LICENSE.md) for full details.
+{{- end }}
+{{- if (file.Exists "LICENSE") }}
+See [LICENSE](LICENSE) for full details.
 {{- end }}
 {{- end }}
 
