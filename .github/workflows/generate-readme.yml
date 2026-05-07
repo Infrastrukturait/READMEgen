@@ -1,0 +1,213 @@
+name: generate-readme
+
+on:
+  workflow_call:
+    inputs:
+      cli_ref:
+        description: "READMEgen CLI git ref/branch/tag for raw install. Default: main"
+        required: false
+        type: string
+        default: "main"
+
+      cli_version:
+        description: "Optional READMEgen CLI release version, e.g. cli-v1.1.0. Overrides cli_ref when set."
+        required: false
+        type: string
+        default: ""
+
+      template_version:
+        description: "READMEgen template version/ref. Default: main"
+        required: false
+        type: string
+        default: "main"
+
+      gomplate_version:
+        description: "gomplate version"
+        required: false
+        type: string
+        default: "v5.1.0"
+
+      config:
+        description: "Config file. Empty means auto-detect README.yaml, README.yml, README.json"
+        required: false
+        type: string
+        default: ""
+
+      output:
+        description: "Generated README output file"
+        required: false
+        type: string
+        default: "README.md"
+
+      commit_message:
+        description: "Commit message"
+        required: false
+        type: string
+        default: "chore: regenerate README [skip ci]"
+
+      target_branch:
+        description: "Branch to push changes to. Empty means current/default branch"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  generate-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve branch
+        id: branch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -n "${{ inputs.target_branch }}" ]; then
+            BRANCH="${{ inputs.target_branch }}"
+          else
+            BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          fi
+
+          echo "branch=${BRANCH}" >> "${GITHUB_OUTPUT}"
+          echo "Using branch: ${BRANCH}"
+
+      - name: Checkout target branch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BRANCH="${{ steps.branch.outputs.branch }}"
+
+          git fetch origin "${BRANCH}"
+          git checkout "${BRANCH}"
+
+      - name: Cache gomplate
+        id: cache-gomplate
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/gomplate
+          key: gomplate-${{ runner.os }}-${{ runner.arch }}-${{ inputs.gomplate_version }}
+
+      - name: Install gomplate
+        if: steps.cache-gomplate.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          GOMPLATE_VERSION="${{ inputs.gomplate_version }}"
+
+          mkdir -p "${HOME}/.local/bin"
+
+          curl -fsSL \
+            "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64" \
+            -o "${HOME}/.local/bin/gomplate"
+
+          chmod +x "${HOME}/.local/bin/gomplate"
+
+      - name: Add gomplate to PATH
+        shell: bash
+        run: |
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+          "${HOME}/.local/bin/gomplate" --version
+
+      - name: Cache READMEgen CLI release
+        id: cache-readmegen-cli
+        if: inputs.cli_version != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/readmegen
+          key: readmegen-cli-${{ runner.os }}-${{ inputs.cli_version }}
+
+      - name: Install READMEgen CLI from release
+        if: inputs.cli_version != '' && steps.cache-readmegen-cli.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CLI_VERSION="${{ inputs.cli_version }}"
+
+          mkdir -p "${HOME}/.local/bin"
+
+          curl -fsSLO "https://github.com/Infrastrukturait/READMEgen/releases/download/${CLI_VERSION}/readmegen-cli"
+          curl -fsSLO "https://github.com/Infrastrukturait/READMEgen/releases/download/${CLI_VERSION}/readmegen-cli.md5"
+
+          md5sum -c readmegen-cli.md5
+
+          install -m 0755 readmegen-cli "${HOME}/.local/bin/readmegen"
+
+          rm -f readmegen-cli readmegen-cli.md5
+
+      - name: Install READMEgen CLI from git ref
+        if: inputs.cli_version == ''
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CLI_REF="${{ inputs.cli_ref }}"
+
+          mkdir -p "${HOME}/.local/bin"
+
+          curl -fsSL \
+            "https://raw.githubusercontent.com/Infrastrukturait/READMEgen/${CLI_REF}/bin/readmegen" \
+            -o "${HOME}/.local/bin/readmegen"
+
+          chmod +x "${HOME}/.local/bin/readmegen"
+
+      - name: Add READMEgen CLI to PATH
+        shell: bash
+        run: |
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+          "${HOME}/.local/bin/readmegen" --help
+
+      - name: Generate README
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ARGS=()
+
+          if [ -n "${{ inputs.config }}" ]; then
+            ARGS+=(--config "${{ inputs.config }}")
+          fi
+
+          ARGS+=(--output "${{ inputs.output }}")
+          ARGS+=(--version "${{ inputs.template_version }}")
+
+          readmegen "${ARGS[@]}"
+
+      - name: Check for changes
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- "${{ inputs.output }}"; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            echo "No README changes detected"
+          else
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
+            echo "README changes detected"
+            git diff -- "${{ inputs.output }}"
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BRANCH="${{ steps.branch.outputs.branch }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "${{ inputs.output }}"
+          git commit -m "${{ inputs.commit_message }}"
+          git push origin "HEAD:${BRANCH}"
