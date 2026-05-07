@@ -1,52 +1,47 @@
 {{- $config := ds "config" -}}
 {{- $license := $config.license -}}
-
 {{- $apache2SourceURL := "https://opensource.org/license/apache-2-0/" -}}
 {{- $mitSourceURL := "https://opensource.org/licenses/MIT" -}}
 {{- $iscSourceURL := "https://opensource.org/licenses/ISC" -}}
 {{- $gpl3SourceURL := "https://opensource.org/license/gpl-3-0/" -}}
-
 # {{ if has $config "deprecated" }}**DEPRECATED** {{ end }}{{ $config.name }}
 
-{{ if has $config "badges" }}
-{{ if $config.badges }}
-{{ range $badge := $config.badges }}
-{{ if and (has $badge "url") $badge.url }}
+{{- if and (has $config "badges") $config.badges }}
+{{ range $badge := $config.badges -}}
+{{- if and (has $badge "url") $badge.url -}}
 [![{{ $badge.name }}]({{ $badge.image }})]({{ $badge.url }})
-{{ else }}
+{{ else -}}
 ![{{ $badge.name }}]({{ $badge.image }})
+{{ end -}}
 {{ end }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{- end }}
 
-{{ if has $config "logo" }}
-{{ if $config.logo }}
+{{- if and (has $config "logo") $config.logo }}
 ![{{ $config.name }}]({{ $config.logo }})
-{{ end }}
-{{ end }}
 
-{{ if has $config "deprecated" }}
-{{ if has $config.deprecated "notice" }}
+{{- end }}
+
+{{- if has $config "deprecated" }}
+{{- if has $config.deprecated "notice" }}
 {{ $config.deprecated.notice }}
-{{ else }}
-### **THIS REPOSITORY IS NO LONGER MAINTAINED**
-{{ end }}
-{{ end }}
 
-{{ if has $config "context" }}
-{{ if $config.context }}
-{{ range $paragraph := $config.context }}
+{{- else }}
+### **THIS REPOSITORY IS NO LONGER MAINTAINED**
+
+{{- end }}
+{{- end }}
+
+{{- if and (has $config "context") $config.context }}
+{{ range $paragraph := $config.context -}}
 {{ $paragraph }}
 
-{{ end }}
-{{ end }}
-{{ end }}
+{{ end -}}
+{{- end }}
 
-{{ if $license }}
+{{- if $license }}
 ## License
 
-{{ if or (eq $license "APACHE2") (eq $license "Apache-2.0") }}
+{{- if or (eq $license "APACHE2") (eq $license "Apache-2.0") }}
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ```text
@@ -66,7 +61,7 @@ software distributed under the License is distributed on an
 Source: {{ $apache2SourceURL }}
 ```
 
-{{ else if eq $license "MIT" }}
+{{- else if eq $license "MIT" }}
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ```text
@@ -84,7 +79,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 Source: {{ $mitSourceURL }}
 ```
 
-{{ else if eq $license "ISC" }}
+{{- else if eq $license "ISC" }}
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
 ```text
@@ -100,7 +95,7 @@ WITH REGARD TO THIS SOFTWARE.
 Source: {{ $iscSourceURL }}
 ```
 
-{{ else if or (eq $license "GPLv3") (eq $license "GPL-3.0") }}
+{{- else if or (eq $license "GPLv3") (eq $license "GPL-3.0") }}
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ```text
@@ -118,45 +113,41 @@ but WITHOUT ANY WARRANTY.
 Source: {{ $gpl3SourceURL }}
 ```
 
-{{ else }}
+{{- else }}
 License: {{ $license }}
-{{ end }}
+{{- end }}
 
-{{ if file.Exists "LICENSE.md" }}
+{{- if file.Exists "LICENSE.md" }}
 See [LICENSE.md](LICENSE.md) for full details.
-{{ else if file.Exists "LICENSE" }}
+{{- else if file.Exists "LICENSE" }}
 See [LICENSE](LICENSE) for full details.
-{{ end }}
+{{- end }}
 
-{{ end }}
+{{- end }}
 
-{{ if has $config "authors" }}
-{{ if $config.authors }}
+{{- if and (has $config "authors") $config.authors }}
 ## Authors
 
-{{ range $author := $config.authors }}
+{{ range $author := $config.authors -}}
 - {{ $author.name }}{{ if has $author "website" }} | [website]({{ $author.website }}){{ end }}{{ if has $author "email" }} | [email](mailto:{{ $author.email }}){{ end }}{{ if has $author "github" }} | [github](https://github.com/{{ $author.github }}){{ end }}
-{{ end }}
+{{ end -}}
 
-{{ end }}
-{{ end }}
+{{- end }}
 
-{{ if has $config "includes" }}
-{{ if $config.includes }}
-{{ range $file := $config.includes }}
-{{ if file.Exists $file }}
+{{- if and (has $config "includes") $config.includes }}
+{{ range $file := $config.includes -}}
+{{- if file.Exists $file }}
 {{ file.Read $file }}
 
-{{ end }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{ end -}}
+{{- end }}
 
 <!-- references -->
 
 [repo_link]: {{ $config.repo_url }}
-{{ if has $config "references" }}
-{{ range $index, $reference_link := $config.references }}
+{{- if and (has $config "references") $config.references }}
+{{ range $index, $reference_link := $config.references -}}
 [{{ math.Add $index 1 }}]: {{ $reference_link }}
-{{ end }}
-{{ end }}
+{{ end -}}
+{{- end }}
