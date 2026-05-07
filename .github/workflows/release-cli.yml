@@ -1,0 +1,174 @@
+name: release-cli
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "CLI release version, e.g. cli-v1.0.0"
+        required: true
+        type: string
+
+  push:
+    tags:
+      - "cli-v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release version
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            RELEASE_VERSION="${{ inputs.version }}"
+          else
+            RELEASE_VERSION="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ ! "${RELEASE_VERSION}" =~ ^cli-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version: ${RELEASE_VERSION}" >&2
+            echo "Expected format: cli-v1.0.0" >&2
+            exit 1
+          fi
+
+          echo "version=${RELEASE_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Resolved CLI release version: ${RELEASE_VERSION}"
+
+      - name: Create and push tag when manually dispatched
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RELEASE_VERSION="${{ steps.release.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch --tags
+
+          if git rev-parse -q --verify "refs/tags/${RELEASE_VERSION}" >/dev/null; then
+            echo "Tag ${RELEASE_VERSION} already exists locally"
+          elif git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "Tag ${RELEASE_VERSION} already exists on origin"
+            git fetch origin "refs/tags/${RELEASE_VERSION}:refs/tags/${RELEASE_VERSION}"
+          else
+            git tag "${RELEASE_VERSION}"
+            git push origin "${RELEASE_VERSION}"
+            echo "Created and pushed tag ${RELEASE_VERSION}"
+          fi
+
+      - name: Build CLI release asset
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist
+
+          cp ./bin/readmegen ./dist/readmegen-cli
+          chmod +x ./dist/readmegen-cli
+
+          cd dist
+
+          md5sum readmegen-cli > readmegen-cli.md5
+          sha256sum readmegen-cli > readmegen-cli.sha256
+
+      - name: Create release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RELEASE_VERSION="${{ steps.release.outputs.version }}"
+
+          cat > release-notes.md <<EOF
+          # READMEgen CLI ${RELEASE_VERSION}
+
+          Bash CLI wrapper for READMEgen.
+
+          ## Install
+
+          Install \`readmegen\` to \`/usr/local/bin/readmegen\` with MD5 verification:
+
+          \`\`\`bash
+          CLI_VERSION="${RELEASE_VERSION}"
+
+          curl -fsSLO "https://github.com/Infrastrukturait/READMEgen/releases/download/\${CLI_VERSION}/readmegen-cli"
+          curl -fsSLO "https://github.com/Infrastrukturait/READMEgen/releases/download/\${CLI_VERSION}/readmegen-cli.md5"
+
+          md5sum -c readmegen-cli.md5
+
+          sudo install -m 0755 readmegen-cli /usr/local/bin/readmegen
+
+          rm -f readmegen-cli readmegen-cli.md5
+
+          readmegen --help
+          \`\`\`
+
+          Recommended SHA256 verification:
+
+          \`\`\`bash
+          CLI_VERSION="${RELEASE_VERSION}"
+
+          curl -fsSLO "https://github.com/Infrastrukturait/READMEgen/releases/download/\${CLI_VERSION}/readmegen-cli"
+          curl -fsSLO "https://github.com/Infrastrukturait/READMEgen/releases/download/\${CLI_VERSION}/readmegen-cli.sha256"
+
+          sha256sum -c readmegen-cli.sha256
+
+          sudo install -m 0755 readmegen-cli /usr/local/bin/readmegen
+
+          rm -f readmegen-cli readmegen-cli.sha256
+
+          readmegen --help
+          \`\`\`
+
+          ## Usage
+
+          Generate README from the first existing config file: \`README.yaml\`, \`README.yml\`, \`README.json\`.
+
+          \`\`\`bash
+          readmegen
+          \`\`\`
+
+          Use a specific config file:
+
+          \`\`\`bash
+          readmegen --config README.yaml
+          \`\`\`
+
+          Use a specific output file:
+
+          \`\`\`bash
+          readmegen --output docs/README.md
+          \`\`\`
+
+          Use a pinned template ref:
+
+          \`\`\`bash
+          readmegen --template-ref template-v1.0.0
+          \`\`\`
+
+          Check whether README is up to date:
+
+          \`\`\`bash
+          readmegen --check
+          \`\`\`
+
+          ## Requirements
+
+          The CLI requires:
+
+          - \`bash\`
+          - \`curl\`
+          - \`gomplate\`
+          EOF
