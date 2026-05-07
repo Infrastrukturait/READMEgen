@@ -1,0 +1,44 @@
+name: READMEgen
+repo_url: https://github.com/Infrastrukturait/READMEgen
+license: GPL-3.0
+
+badges:
+  - name: Release
+    image: https://img.shields.io/github/v/release/Infrastrukturait/READMEgen
+    url: https://github.com/Infrastrukturait/READMEgen/releases
+
+context:
+  - |
+    ## About
+
+    READMEgen is a small README generation standard based on `gomplate`.
+
+    It provides a reusable `README.md.template`, a simple `readmegen` CLI helper, and a GitHub Actions workflow for keeping generated README files up to date across repositories.
+
+  - |
+    ## Features
+
+    - Standardized README generation
+    - JSON and YAML configuration support
+    - Optional markdown includes
+    - Built-in license sections
+    - Local and remote template support
+    - CLI helper for local usage, hooks, and CI
+    - Reusable GitHub Actions workflow for scheduled README regeneration
+
+includes:
+  - docs/usage.md
+  - docs/requirements.md
+  - docs/vars.md
+  - docs/workflow-example.md
+
+authors:
+  - name: Rafał Masiarek
+    email: rafal@masiarek.pl
+    github: rafalmasiarek
+    website: https://masiarek.pl
+
+references:
+  - https://gomplate.ca
+  - https://github.com/hairyhenderson/gomplate
+  - https://github.com/Infrastrukturait/READMEgen/releases
