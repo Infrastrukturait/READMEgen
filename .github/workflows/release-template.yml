@@ -1,0 +1,114 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, e.g. v1.0.0"
+        required: true
+        type: string
+
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release version
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            RELEASE_VERSION="${{ inputs.version }}"
+          else
+            RELEASE_VERSION="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ ! "${RELEASE_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version: ${RELEASE_VERSION}" >&2
+            echo "Expected format: v1.0.0" >&2
+            exit 1
+          fi
+
+          echo "version=${RELEASE_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Resolved release version: ${RELEASE_VERSION}"
+
+      - name: Create and push tag when manually dispatched
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RELEASE_VERSION="${{ steps.release.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch --tags
+
+          if git rev-parse -q --verify "refs/tags/${RELEASE_VERSION}" >/dev/null; then
+            echo "Tag ${RELEASE_VERSION} already exists locally"
+          elif git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "Tag ${RELEASE_VERSION} already exists on origin"
+            git fetch origin "refs/tags/${RELEASE_VERSION}:refs/tags/${RELEASE_VERSION}"
+          else
+            git tag "${RELEASE_VERSION}"
+            git push origin "${RELEASE_VERSION}"
+            echo "Created and pushed tag ${RELEASE_VERSION}"
+          fi
+
+      - name: Create release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RELEASE_VERSION="${{ steps.release.outputs.version }}"
+
+          mkdir -p dist/readmegen
+
+          cp README.md.template dist/readmegen/
+          cp -r bin dist/readmegen/
+          cp Makefile dist/readmegen/
+
+          tar -czf "dist/readmegen-${RELEASE_VERSION}.tar.gz" -C dist readmegen
+
+      - name: Create checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RELEASE_VERSION="${{ steps.release.outputs.version }}"
+
+          cd dist
+
+          md5sum "readmegen-${RELEASE_VERSION}.tar.gz" > "readmegen-${RELEASE_VERSION}.tar.gz.md5"
+          sha256sum "readmegen-${RELEASE_VERSION}.tar.gz" > "readmegen-${RELEASE_VERSION}.tar.gz.sha256"
+
+          md5sum ../README.md.template > README.md.template.md5
+          sha256sum ../README.md.template > README.md.template.sha256
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.release.outputs.version }}
+          name: READMEgen ${{ steps.release.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/readmegen-${{ steps.release.outputs.version }}.tar.gz
+            dist/readmegen-${{ steps.release.outputs.version }}.tar.gz.md5
+            dist/readmegen-${{ steps.release.outputs.version }}.tar.gz.sha256
+            README.md.template
+            dist/README.md.template.md5
+            dist/README.md.template.sha256
