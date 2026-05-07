@@ -1,186 +1,162 @@
-{{- defineDatasource "extra_include" "" | regexp.Replace ".*" "" -}}
-{{- $deprecated := has (ds "config") "deprecated" }}
-# {{- if $deprecated }} **DEPRECATED**{{- end }} {{(ds "config").name}}
-{{- if has (ds "config") "badges" }}
-{{- range $badge := (ds "config").badges }}
-{{- if eq $badge.url "" }}
-{{- printf " ![%s](%s)" $badge.name $badge.image }}
-{{- else }}
-{{- printf " [![%s](%s)](%s)" $badge.name $badge.image $badge.url }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{- $config := ds "config" -}}
+{{- $license := $config.license -}}
 
-[![WeSupportUkraine](https://raw.githubusercontent.com/Infrastrukturait/WeSupportUkraine/main/banner.svg)](https://github.com/Infrastrukturait/WeSupportUkraine)
+{{- $apache2SourceURL := "https://opensource.org/license/apache-2-0/" -}}
+{{- $mitSourceURL := "https://opensource.org/licenses/MIT" -}}
+{{- $iscSourceURL := "https://opensource.org/licenses/ISC" -}}
+{{- $gpl3SourceURL := "https://opensource.org/license/gpl-3-0/" -}}
 
-{{- if has (ds "config") "logo" }}
-![{{(ds "config").name}}]({{ (ds "config").logo }})
-{{- end }}
+# {{ if has $config "deprecated" }}**DEPRECATED** {{ end }}{{ $config.name }}
 
-{{- if $deprecated }}
-{{- if has (ds "config").deprecated "notice" }}
-{{- (ds "config").deprecated.notice }}
-{{- else }}
+{{ if has $config "badges" }}
+{{ if $config.badges }}
+{{ range $badge := $config.badges }}
+{{ if and (has $badge "url") $badge.url }}
+[![{{ $badge.name }}]({{ $badge.image }})]({{ $badge.url }})
+{{ else }}
+![{{ $badge.name }}]({{ $badge.image }})
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+
+{{ if has $config "logo" }}
+{{ if $config.logo }}
+![{{ $config.name }}]({{ $config.logo }})
+{{ end }}
+{{ end }}
+
+{{ if has $config "deprecated" }}
+{{ if has $config.deprecated "notice" }}
+{{ $config.deprecated.notice }}
+{{ else }}
 ### **THIS REPOSITORY IS NO LONGER MAINTAINED**
-{{- end }}
-{{- end }}
+{{ end }}
+{{ end }}
 
-{{- if has (ds "config") "context" }}
-{{- if (ds "config").context }}
-{{- range  (ds "config").context }}
-{{ . }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{ if has $config "context" }}
+{{ if $config.context }}
+{{ range $paragraph := $config.context }}
+{{ $paragraph }}
 
-{{- if eq (ds "config").license "APACHE2" }}
+{{ end }}
+{{ end }}
+{{ end }}
+
+{{ if $license }}
 ## License
 
+{{ if or (eq $license "APACHE2") (eq $license "Apache-2.0") }}
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ```text
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+Apache License, Version 2.0
+
+Licensed under the Apache License, Version 2.0.
+You may not use this file except in compliance with the License.
+
+You may obtain a copy of the License at:
 
   https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
 
-Source: <https://opensource.org/license/apache-2-0/>
+Source: {{ $apache2SourceURL }}
 ```
-{{- if (file.Exists "LICENSE.md") }}
-See [LICENSE.md(LICENSE.md) for full details.
-{{- end }}
-{{- if (file.Exists "LICENSE") }}
-See [LICENSE](LICENSE) for full details.
-{{- end }}
-{{- end }}
 
-{{- if eq (ds "config").license "MIT" }}
-## License
-
+{{ else if eq $license "MIT" }}
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ```text
 The MIT License (MIT)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files, to deal in the Software
+without restriction.
 
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
-Source: <https://opensource.org/licenses/MIT>
+Source: {{ $mitSourceURL }}
 ```
-{{- if (file.Exists "LICENSE.md") }}
-See [LICENSE.md](LICENSE.md) for full details.
-{{- end }}
-{{- if (file.Exists "LICENSE") }}
-See [LICENSE](LICENSE) for full details.
-{{- end }}
-{{- end }}
 
-{{- if eq (ds "config").license "ISC" }}
-## License
-
+{{ else if eq $license "ISC" }}
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
 ```text
 ISC License (ISC)
 
-Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that 
-the above copyright notice and this permission notice appear in all copies.
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR 
-ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
-ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE.
 
-Source: <https://opensource.org/licenses/ISC>
+Source: {{ $iscSourceURL }}
 ```
-{{- if (file.Exists "LICENSE.md") }}
-See [LICENSE.md](LICENSE.md) for full details.
-{{- end }}
-{{- if (file.Exists "LICENSE") }}
-See [LICENSE](LICENSE) for full details.
-{{- end }}
-{{- end }}
 
-{{- if eq (ds "config").license "GPLv3" }}
-## License
-
+{{ else if or (eq $license "GPLv3") (eq $license "GPL-3.0") }}
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ```text
 GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or at your option
+any later version.
 
 This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+but WITHOUT ANY WARRANTY.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-Source: <https://opensource.org/license/gpl-3-0/>
+Source: {{ $gpl3SourceURL }}
 ```
 
-{{- if (file.Exists "LICENSE.md") }}
+{{ else }}
+License: {{ $license }}
+{{ end }}
+
+{{ if file.Exists "LICENSE.md" }}
 See [LICENSE.md](LICENSE.md) for full details.
-{{- end }}
-{{- if (file.Exists "LICENSE") }}
+{{ else if file.Exists "LICENSE" }}
 See [LICENSE](LICENSE) for full details.
-{{- end }}
-{{- end }}
+{{ end }}
 
-{{- if has (ds "config") "authors" }}
+{{ end }}
+
+{{ if has $config "authors" }}
+{{ if $config.authors }}
 ## Authors
-{{- range $author := (ds "config").authors }}
-- {{- printf " %s" $author.name }}{{- if has $author "website" }}{{ printf " | [website](%s)" $author.website }}{{- end }}{{- if has $author "email" }}{{ printf " | [email](mailto:%s)" $author.email }}{{- end }}{{- if has $author "github" }}{{ printf " | [github](https://github.com/%s)" $author.github }}{{- end }}
-{{- end }}
-{{- end }}
 
-{{- if has (ds "config") "includes" }}
-{{- range $file := (ds "config").includes }}
-{{- if (file.Exists $file) }}
-{{ (include "extra_include" $file) }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{ range $author := $config.authors }}
+- {{ $author.name }}{{ if has $author "website" }} | [website]({{ $author.website }}){{ end }}{{ if has $author "email" }} | [email](mailto:{{ $author.email }}){{ end }}{{ if has $author "github" }} | [github](https://github.com/{{ $author.github }}){{ end }}
+{{ end }}
+
+{{ end }}
+{{ end }}
+
+{{ if has $config "includes" }}
+{{ if $config.includes }}
+{{ range $file := $config.includes }}
+{{ if file.Exists $file }}
+{{ file.Read $file }}
+
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
 
 <!-- references -->
 
-{{ printf "[repo_link]: %s" (ds "config").repo_url }}
-{{- if has (ds "config") "references" }}
-{{- range $index, $reference_link := (ds "config").references  }}
-{{ printf "[%d]: %s" ( math.Add $index 1 ) $reference_link }}
-{{- end }}
-{{- end }}
+[repo_link]: {{ $config.repo_url }}
+{{ if has $config "references" }}
+{{ range $index, $reference_link := $config.references }}
+[{{ math.Add $index 1 }}]: {{ $reference_link }}
+{{ end }}
+{{ end }}
