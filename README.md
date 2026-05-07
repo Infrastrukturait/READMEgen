@@ -2,6 +2,7 @@
 [![README.md.template](https://img.shields.io/github/v/release/Infrastrukturait/READMEgen?filter=!cli-*&sort=semver&label=template)](https://github.com/Infrastrukturait/READMEgen/releases)
 [![readmegen-cli](https://img.shields.io/github/v/release/Infrastrukturait/READMEgen?filter=cli-*&sort=semver&label=cli)](https://github.com/Infrastrukturait/READMEgen/releases)
 
+![READMEgen](assets/readmegen-logo.png)
 ## About
 
 READMEgen is a small README generation standard based on `gomplate`.
