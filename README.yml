@@ -3,8 +3,12 @@ repo_url: https://github.com/Infrastrukturait/READMEgen
 license: GPL-3.0
 
 badges:
-  - name: Release
-    image: https://img.shields.io/github/v/release/Infrastrukturait/READMEgen
+  - name: README.md.template
+    image: https://img.shields.io/github/v/release/Infrastrukturait/READMEgen?filter=!cli-*&sort=semver&label=template
+    url: https://github.com/Infrastrukturait/READMEgen/releases
+
+  - name: readmegen-cli
+    image: https://img.shields.io/github/v/release/Infrastrukturait/READMEgen?filter=cli-*&sort=semver&label=cli
     url: https://github.com/Infrastrukturait/READMEgen/releases
 
 context:
@@ -26,11 +30,13 @@ context:
     - CLI helper for local usage, hooks, and CI
     - Reusable GitHub Actions workflow for scheduled README regeneration
 
-includes:
-  - docs/usage.md
-  - docs/requirements.md
-  - docs/vars.md
-  - docs/workflow-example.md
+  - |
+    ## Documentation
+
+    - [Usage](docs/usage.md)
+    - [Requirements](docs/requirements.md)
+    - [Configuration](docs/vars.md)
+    - [GitHub Actions workflow example](docs/workflow-example.md)
 
 authors:
   - name: Rafał Masiarek
