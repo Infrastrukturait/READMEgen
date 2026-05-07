@@ -25,6 +25,15 @@ curl -fsSL https://raw.githubusercontent.com/Infrastrukturait/READMEgen/v1.0.0/R
   | gomplate -d config=./README.yaml > README.md
 ```
 
+Use a local template file:
+
+```bash
+gomplate \
+  -d config=./README.yaml \
+  -f ./README.md.template \
+  -o README.md
+```
+
 ## Using readmegen CLI
 
 Generate `README.md` from the first existing config file:
