@@ -1,6 +1,7 @@
 name: READMEgen
 repo_url: https://github.com/Infrastrukturait/READMEgen
 license: GPL-3.0
+logo: assets/readmegen-logo.png
 
 badges:
   - name: README.md.template
