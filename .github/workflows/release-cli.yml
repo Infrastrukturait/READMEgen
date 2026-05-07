@@ -94,11 +94,7 @@ jobs:
           cat > release-notes.md <<'EOF'
           # READMEgen CLI __RELEASE_VERSION__
 
-          Bash CLI wrapper for READMEgen.
-
           ## Install
-
-          Install `readmegen` to `/usr/local/bin/readmegen` with MD5 verification:
 
           ```bash
           CLI_VERSION="__RELEASE_VERSION__"
@@ -115,7 +111,7 @@ jobs:
           readmegen --help
           ```
 
-          Recommended SHA256 verification:
+          ## Install with SHA256
 
           ```bash
           CLI_VERSION="__RELEASE_VERSION__"
@@ -134,43 +130,14 @@ jobs:
 
           ## Usage
 
-          Generate README from the first existing config file: `README.yaml`, `README.yml`, `README.json`.
-
           ```bash
           readmegen
-          ```
-
-          Use a specific config file:
-
-          ```bash
           readmegen --config README.yaml
-          ```
-
-          Use a specific output file:
-
-          ```bash
-          readmegen --output docs/README.md
-          ```
-
-          Use a pinned template ref:
-
-          ```bash
-          readmegen --template-ref template-v1.0.0
-          ```
-
-          Check whether README is up to date:
-
-          ```bash
+          readmegen --config README.json --output README.md
+          readmegen --version v1.0.0
+          readmegen --template ./README.md.template
           readmegen --check
           ```
-
-          ## Requirements
-
-          The CLI requires:
-
-          - `bash`
-          - `curl`
-          - `gomplate`
           EOF
 
           sed -i 's/^          //' release-notes.md
