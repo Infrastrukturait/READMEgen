@@ -16,9 +16,10 @@ context:
   - |
     ## About
 
-    READMEgen is a small README generation standard based on `gomplate`.
+    READMEgen is a small README generation standard based on [gomplate][1].
 
     It provides a reusable `README.md.template`, a simple `readmegen` CLI helper, and a GitHub Actions workflow for keeping generated README files up to date across repositories.
+    Idea was *taken* from [cloudposse][3] and them [build-harness][4].
 
   - |
     ## Features
@@ -48,4 +49,6 @@ authors:
 references:
   - https://gomplate.ca
   - https://github.com/hairyhenderson/gomplate
+  - https://cloudposse.com
+  - https://github.com/cloudposse/build-harness
   - https://github.com/Infrastrukturait/READMEgen/releases
