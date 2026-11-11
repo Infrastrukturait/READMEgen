@@ -2,6 +2,7 @@ name: READMEgen
 repo_url: https://github.com/Infrastrukturait/READMEgen
 license: GPL-3.0
 logo: assets/readmegen-logo.png
+deprecated: {}
 
 badges:
   - name: README.md.template
@@ -13,6 +14,11 @@ badges:
     url: https://github.com/Infrastrukturait/READMEgen/releases
 
 context:
+  - |
+    **This repository has moved.**
+
+    Development continues at [rafalmasiarek/readme-gen](https://github.com/rafalmasiarek/readme-gen). This repository is archived and kept only for historical reference.
+
   - |
     ## About
 

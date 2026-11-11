@@ -1,8 +1,14 @@
-# READMEgen
+# **DEPRECATED** READMEgen
 [![README.md.template](https://img.shields.io/github/v/release/Infrastrukturait/READMEgen?filter=!cli-*&sort=semver&label=template)](https://github.com/Infrastrukturait/READMEgen/releases)
 [![readmegen-cli](https://img.shields.io/github/v/release/Infrastrukturait/READMEgen?filter=cli-*&sort=semver&label=cli)](https://github.com/Infrastrukturait/READMEgen/releases)
 
 ![READMEgen](assets/readmegen-logo.png)
+### **THIS REPOSITORY IS NO LONGER MAINTAINED**
+**This repository has moved.**
+
+Development continues at [rafalmasiarek/readme-gen](https://github.com/rafalmasiarek/readme-gen). This repository is archived and kept only for historical reference.
+
+
 ## About
 
 READMEgen is a small README generation standard based on [gomplate][1].
